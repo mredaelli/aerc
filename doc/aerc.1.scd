@@ -110,6 +110,8 @@ message list, the message in the message viewer, etc).
 
 	*-p*: Pipe just the selected message part, if applicable
 
+	*-c*: Close the terminal tab without waiting for user confirmation
+
 *reply* [-aq]
 	Opens the composer to reply to the selected message.
 

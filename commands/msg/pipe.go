@@ -35,10 +35,11 @@ func (_ Pipe) Execute(aerc *widgets.Aerc, args []string) error {
 	var (
 		background bool
 		pipeFull   bool
+		autoClose  bool
 		pipePart   bool
 	)
 	// TODO: let user specify part by index or preferred mimetype
-	opts, optind, err := getopt.Getopts(args, "bmp")
+	opts, optind, err := getopt.Getopts(args, "bmpc")
 	if err != nil {
 		return err
 	}
@@ -56,11 +57,17 @@ func (_ Pipe) Execute(aerc *widgets.Aerc, args []string) error {
 				return errors.New("-m and -p are mutually exclusive")
 			}
 			pipePart = true
+		case 'c':
+			autoClose = true
 		}
 	}
 	cmd := args[optind:]
 	if len(cmd) == 0 {
-		return errors.New("Usage: pipe [-mp] <cmd> [args...]")
+		return errors.New("Usage: pipe [-mpc] <cmd> [args...]")
+	}
+
+	if background && autoClose {
+		return errors.New("-c and -b are mutually exclusive")
 	}
 
 	provider := aerc.SelectedTab().(widgets.ProvidesMessage)
@@ -76,7 +83,7 @@ func (_ Pipe) Execute(aerc *widgets.Aerc, args []string) error {
 	}
 
 	doTerm := func(reader io.Reader, name string) {
-		term, err := commands.QuickTerm(aerc, cmd, reader)
+		term, err := commands.QuickTerm(aerc, cmd, reader, autoClose)
 		if err != nil {
 			aerc.PushError(" " + err.Error())
 			return
