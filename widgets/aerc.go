@@ -302,6 +302,15 @@ func (aerc *Aerc) TabNames() []string {
 	return names
 }
 
+func (aerc *Aerc) CanCloseTab(name string) bool {
+	for _, tab := range aerc.tabs.Tabs {
+		if tab.Name == name {
+			return tab.CanClose()
+		}
+	}
+	return true
+}
+
 func (aerc *Aerc) SelectPreviousTab() bool {
 	return aerc.tabs.SelectPrevious()
 }
@@ -396,6 +405,9 @@ func (aerc *Aerc) Mailto(addr *url.URL) error {
 		composer.FocusTerminal()
 	}
 	tab := aerc.NewTab(composer, title)
+	tab.OnClose(func() bool {
+		return false
+	})
 	composer.OnHeaderChange("Subject", func(subject string) {
 		if subject == "" {
 			tab.Name = "New email"

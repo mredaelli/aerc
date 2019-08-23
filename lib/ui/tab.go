@@ -19,6 +19,7 @@ type Tabs struct {
 type Tab struct {
 	Content Drawable
 	Name    string
+	onClose func() bool
 	invalid bool
 }
 
@@ -156,6 +157,19 @@ func (tabs *Tabs) MouseEvent(event tcell.Event) {
 				tabs.Select(selectedTab)
 			}
 		}
+	}
+}
+
+// Registers a handler for the tab to react to a close event
+func (tab *Tab) OnClose(fn func() bool) {
+	tab.onClose = fn
+}
+
+func (tab *Tab) CanClose() bool {
+	if tab.onClose != nil {
+		return tab.onClose()
+	} else {
+		return true
 	}
 }
 

@@ -2,6 +2,8 @@ package commands
 
 import (
 	"errors"
+	"git.sr.ht/~sircmpwn/getopt"
+	"time"
 
 	"git.sr.ht/~sircmpwn/aerc/widgets"
 )
@@ -27,8 +29,28 @@ func (err ErrorExit) Error() string {
 }
 
 func (_ Quit) Execute(aerc *widgets.Aerc, args []string) error {
-	if len(args) != 1 {
-		return errors.New("Usage: quit")
+	opts, optind, err := getopt.Getopts(args, "y")
+	if err != nil {
+		return err
+	}
+	var dontAsk bool
+	for _, opt := range opts {
+		switch opt.Option {
+		case 'y':
+			dontAsk = true
+		}
+	}
+	cmd := args[optind:]
+	if len(cmd) > 0 {
+		return errors.New("Usage: quit [-y]")
+	}
+	if !dontAsk {
+		for _, name := range aerc.TabNames() {
+			if !aerc.CanCloseTab(name) {
+				aerc.SelectTab(name)
+				aerc.PushStatus("This tab has unsaved changes.", 5*time.Second)
+			}
+		}
 	}
 	return ErrorExit(1)
 }

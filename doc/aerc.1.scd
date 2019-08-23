@@ -67,8 +67,10 @@ These commands work in any context.
 	Cycles to the previous or next tab in the list, repeating n times
 	(default: 1).
 
-*quit*
+*quit* [-y]
 	Exits aerc.
+
+	*-y*: Don't warn about unsaved tabs
 
 ## MESSAGE COMMANDS
 
